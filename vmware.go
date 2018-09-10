@@ -114,7 +114,7 @@ func NewClient(ctx context.Context, host string, username string, password strin
 		return nil, err
 	}
 
-	u.User = url.UserPassword(username, envPassword)
+	u.User = url.UserPassword(username, password)
 	// Connect and log in to ESX or vCenter
 	return govmomi.NewClient(ctx, u, true)
 }

@@ -13,9 +13,8 @@ func GetVM(c *govmomi.Client, ctx context.Context) ([]mo.VirtualMachine, error) 
 
 	//defer c.Logout(ctx)
 
-	// Create view of VirtualMachine objects
+	// Create view of VirtualMachine objects]
 	m := view.NewManager(c.Client)
-
 	v, err := m.CreateContainerView(ctx, c.ServiceContent.RootFolder, []string{"VirtualMachine"}, true)
 	if err != nil {
 		log.Fatal(err)

@@ -13,7 +13,8 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
-func GetScsiLunDisks(c *govmomi.Client, ctx context.Context) (map[string]types.ScsiLun, error) {
+//GetScsiLunDisks gets a unique list of scsi luns from all ESX hosts
+func GetScsiLunDisks(ctx context.Context, c *govmomi.Client) ([]types.ScsiLun, error) {
 
 	m := view.NewManager(c.Client)
 
@@ -34,7 +35,7 @@ func GetScsiLunDisks(c *govmomi.Client, ctx context.Context) (map[string]types.S
 	}
 
 	luns := []types.ScsiLun{}
-
+	//TODO can make this parrallel on all hosts
 	for _, hostSystem := range hostSystems {
 
 		host := object.NewHostSystem(c.Client, hostSystem.Reference())
@@ -56,19 +57,20 @@ func GetScsiLunDisks(c *govmomi.Client, ctx context.Context) (map[string]types.S
 	return uniqueLuns(luns), err
 }
 
-func uniqueLuns(luns []types.ScsiLun) map[string]types.ScsiLun {
-	//u := []types.ScsiLun{}
-	m := make(map[string]types.ScsiLun)
+//removes duplicate luns by the uuid property
+//+trim space from vendor
+func uniqueLuns(luns []types.ScsiLun) []types.ScsiLun {
+	u := []types.ScsiLun{}
+	m := make(map[string]bool)
 
 	for _, lun := range luns {
 		if _, ok := m[lun.Uuid]; !ok {
-			m[lun.Uuid] = lun
-			//u = append(u, lun)
+			m[lun.Uuid] = true
+			u = append(u, lun)
 		}
 	}
 
-	//return u
-	return m
+	return u
 }
 
 func getScsiLunDisks(hss mo.HostStorageSystem) (diskLuns []types.ScsiLun) {
